@@ -8,7 +8,7 @@ app = FastAPI()
 @app.get("/get_data/{rut}")
 async def get_data(rut: str):
     # The actual API endpoint that returns the data
-    url = f"https://r.rutificador.co/pr/{rut}"
+    url = f"https://r.rutificador.co/pr/{rut.upper()}"
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
