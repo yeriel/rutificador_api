@@ -1,15 +1,19 @@
+import re
 import httpx
 import uvicorn
-import re
 from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
 @app.get("/get_data/{rut}")
 async def get_data(rut: str):
+    # The actual API endpoint that returns the data
     url = f"https://r.rutificador.co/pr/{rut}"
+
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Referer": "https://www.rutificador.co/",
+        "X-Requested-With": "XMLHttpRequest"
     }
     
     async with httpx.AsyncClient() as client:
@@ -19,7 +23,12 @@ async def get_data(rut: str):
             if response.status_code == 200:
                 html = response.text
                 
-                pattern = r'<tr>\s*<td>(.*?)</td>\s*<td>(\d{1,2}\.\d{3}\.\d{3}-\d)</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>\s*</tr>'
+                # Check if no results were found
+                if "No se encontraron resultados" in html:
+                    return {"results": []}
+                
+                # Parse the HTML response
+                pattern = r'<tr>\s*<td>(.*?)</td>\s*<td>(\d{1,2}\.\d{3}\.\d{3}-[\dkK])</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>\s*</tr>'
                 matches = re.findall(pattern, html, re.DOTALL)
                 
                 if matches:
