@@ -8,8 +8,8 @@ app = FastAPI()
 @app.get("/get_data/{rut}")
 async def get_data(rut: str):
     rut_, dv = rut.split('-')
-    rut_ = f'{rut[-7:]}.{rut[-4:-7]}.{rut[-1:-4]}-{dv}'
-    
+    rut_ = f"{int(rut_):,}".replace(",", ".") + f"-{dv}"
+
     # The actual API endpoint that returns the data
     url = f"https://r.rutificador.co/pr/{rut_.upper()}"
 
